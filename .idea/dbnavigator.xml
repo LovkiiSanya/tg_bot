@@ -35,7 +35,15 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="24b3b549-40a0-4393-be51-a2590e8765d7">
-      <console name="Connection" type="STANDARD" schema="public" session="Main"><![CDATA[select * from bot_character]]></console>
+      <console name="Connection" type="STANDARD" schema="public" session="Main"><![CDATA[select * from bot_character
+select * from bot_enemy
+
+DELETE FROM bot_enemy;
+DELETE FROM bot_dragon;
+DELETE FROM bot_orc;
+DELETE FROM bot_goblin;
+DELETE FROM bot_wolf;
+DELETE FROM bot_golem;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
@@ -44,6 +52,7 @@
   <component name="DBNavigator.Project.DatabaseFileManager">
     <open-files>
       <object connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" object-ref="schemas/public/tables/bot_character" />
+      <object connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" object-ref="consoles/Connection" />
     </open-files>
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
@@ -52,6 +61,14 @@
     </connection>
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
+    <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.auth_user_groups" active-filter-id="" />
+    <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.bot_enemy" active-filter-id="">
+      <filter id="3e73d78e-9abf-4026-a0fc-c3a2c1ff4ef2" name="Filter 1" temporary="false" custom-name="false" type="basic" join-type="AND">
+        <condition column="id" operator="=" value="" active="true" />
+      </filter>
+    </filter-actions>
+    <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.django_admin_log" active-filter-id="" />
+    <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.bot_dragon" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.bot_character" active-filter-id="EMPTY_FILTER" />
   </component>
   <component name="DBNavigator.Project.ExecutionManager">
@@ -494,7 +511,7 @@
           <on-autocommit-toggle value="ASK" />
         </uncommitted-changes>
         <multiple-uncommitted-changes>
-          <on-commit value="ASK" />
+          <on-commit value="COMMIT" />
           <on-rollback value="ASK" />
         </multiple-uncommitted-changes>
       </transactions>

@@ -60,7 +60,6 @@ class Character(models.Model):
     def apply_random_effect(self):
         apply_random_effect(self)
 
-
     class Meta:
         verbose_name = "Character"
         verbose_name_plural = "Characters"

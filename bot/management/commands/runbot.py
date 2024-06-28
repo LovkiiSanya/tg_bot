@@ -2,9 +2,52 @@ import os
 import telebot
 from django.core.management.base import BaseCommand
 from bot.models import Character
+from bot.enemies import Enemy, Goblin, Wolf, Orc, Golem, Dragon
 
 TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 bot = telebot.TeleBot(TOKEN)
+
+
+def clear_and_create_enemies():
+    Enemy.objects.all().delete()
+
+    goblins = [
+        Goblin(name="Goblin", level=1),
+        Goblin(name="Goblin Fighter", level=2),
+        Goblin(name="Goblin Champion", level=3)
+    ]
+
+    wolves = [
+        Wolf(name="Wolf Pup", level=1),
+        Wolf(name="Wolf", level=2),
+        Wolf(name="Alpha Wolf", level=3)
+    ]
+
+    orcs = [
+        Orc(name="Orc Warrior", level=1),
+        Orc(name="Orc Berserker", level=2),
+        Orc(name="Orc Warlord", level=3)
+    ]
+
+    golems = [
+        Golem(name="Stone Golem", level=1),
+        Golem(name="Iron Golem", level=2),
+        Golem(name="Diamond Golem", level=3)
+    ]
+
+    dragons = [
+        Dragon(name="Lil Dragon", level=1),
+        Dragon(name="Fire Dragon", level=2),
+        Dragon(name="King Dragon", level=3)
+    ]
+
+    enemies = goblins + wolves + orcs + golems + dragons
+
+    for enemy in enemies:
+        enemy.save()
+
+
+clear_and_create_enemies()
 
 
 class Command(BaseCommand):
@@ -61,20 +104,20 @@ class Command(BaseCommand):
                 user.role = role
 
                 if role == 'Tank':
-                    user.hp += 50
-                    user.cp -= 5
-                    user.mp -= 10
-                    user.dmg += 10
+                    user.hp += 100
+                    user.cp += 40
+                    user.mp += 10
+                    user.dmg += 50
                 elif role == 'Duelist':
-                    user.cp += 20
-                    user.hp -= 20
-                    user.mp -= 10
-                    user.dmg += 15
+                    user.cp += 50
+                    user.hp += 50
+                    user.mp += 10
+                    user.dmg += 75
                 elif role == 'Mage':
-                    user.mp += 30
-                    user.hp -= 30
-                    user.cp -= 5
-                    user.dmg += 25
+                    user.mp += 20
+                    user.hp += 25
+                    user.cp += 25
+                    user.dmg += 90
 
                 user.save()
 
@@ -133,5 +176,17 @@ class Command(BaseCommand):
                 bot.reply_to(message, f"Effect applied: {user.effects}")
             except Character.DoesNotExist:
                 bot.reply_to(message, "You don't have a character yet. Use /start to create one.")
+
+        @bot.message_handler(commands=['enemies'])
+        def show_enemies(message):
+            enemies = Enemy.objects.all()
+            if enemies.exists():
+                response = "List of enemies:\n"
+                for enemy in enemies:
+                    response += f"{enemy.enemy_type} - {enemy.name}, HP: {enemy.get_hp()}, DMG: {enemy.get_dmg()}, CP: {enemy.get_cp()}, Level: {enemy.level}\n"
+            else:
+                response = "No enemies."
+
+            bot.send_message(message.chat.id, response)
 
         bot.polling(none_stop=True)
