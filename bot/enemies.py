@@ -8,6 +8,7 @@ class Enemy(models.Model):
     base_dmg = models.IntegerField(default=10)
     level = models.IntegerField(default=1)
     enemy_type = models.CharField(max_length=50, default='Generic')
+    exp_reward = models.IntegerField(default=50)
 
     def __str__(self):
         return f"{self.enemy_type} ({self.name})"
@@ -21,12 +22,20 @@ class Enemy(models.Model):
     def get_dmg(self):
         return self.base_dmg * self.level
 
+    def save(self, *args, **kwargs):
+        self.base_hp = self.get_hp()
+        self.base_cp = self.get_cp()
+        self.base_dmg = self.get_dmg()
+        super().save(*args, **kwargs)
+
 
 class Goblin(Enemy):
     def __init__(self, *args, **kwargs):
         kwargs['enemy_type'] = 'Goblin'
         kwargs['base_hp'] = 50
         kwargs['base_dmg'] = 5
+        kwargs['base_cp'] = 0
+        kwargs['exp_reward'] = 50
         super().__init__(*args, **kwargs)
 
 
@@ -35,6 +44,8 @@ class Wolf(Enemy):
         kwargs['enemy_type'] = 'Wolf'
         kwargs['base_hp'] = 100
         kwargs['base_dmg'] = 20
+        kwargs['base_cp'] = 5
+        kwargs['exp_reward'] = 100
         super().__init__(*args, **kwargs)
 
 
@@ -44,6 +55,7 @@ class Orc(Enemy):
         kwargs['base_hp'] = 150
         kwargs['base_dmg'] = 25
         kwargs['base_cp'] = 15
+        kwargs['exp_reward'] = 200
         super().__init__(*args, **kwargs)
 
 
@@ -53,6 +65,7 @@ class Golem(Enemy):
         kwargs['base_hp'] = 400
         kwargs['base_dmg'] = 20
         kwargs['base_cp'] = 75
+        kwargs['exp_reward'] = 250
         super().__init__(*args, **kwargs)
 
 
@@ -62,4 +75,5 @@ class Dragon(Enemy):
         kwargs['base_hp'] = 1000
         kwargs['base_dmg'] = 100
         kwargs['base_cp'] = 250
+        kwargs['exp_reward'] = 500
         super().__init__(*args, **kwargs)

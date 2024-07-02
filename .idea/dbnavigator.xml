@@ -52,7 +52,6 @@ DELETE FROM bot_golem;]]></console>
   <component name="DBNavigator.Project.DatabaseFileManager">
     <open-files>
       <object connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" object-ref="schemas/public/tables/bot_character" />
-      <object connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" object-ref="consoles/Connection" />
     </open-files>
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
@@ -62,7 +61,7 @@ DELETE FROM bot_golem;]]></console>
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
     <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.auth_user_groups" active-filter-id="" />
-    <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.bot_enemy" active-filter-id="">
+    <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.bot_enemy" active-filter-id="EMPTY_FILTER">
       <filter id="3e73d78e-9abf-4026-a0fc-c3a2c1ff4ef2" name="Filter 1" temporary="false" custom-name="false" type="basic" join-type="AND">
         <condition column="id" operator="=" value="" active="true" />
       </filter>
@@ -511,7 +510,7 @@ DELETE FROM bot_golem;]]></console>
           <on-autocommit-toggle value="ASK" />
         </uncommitted-changes>
         <multiple-uncommitted-changes>
-          <on-commit value="COMMIT" />
+          <on-commit value="ASK" />
           <on-rollback value="ASK" />
         </multiple-uncommitted-changes>
       </transactions>

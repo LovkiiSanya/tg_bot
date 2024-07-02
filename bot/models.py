@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import JSONField
+
 from bot.management.commands.game_dice import apply_random_effect
+import logging
+
 
 
 class Character(models.Model):
@@ -14,6 +18,28 @@ class Character(models.Model):
     exp = models.IntegerField(default=0)
     level = models.IntegerField(default=1)
     effects = models.CharField(max_length=255, null=True, blank=True)
+    state = models.CharField(max_length=50, default='start')
+    temp_stats = JSONField(default=dict)
+
+    def level_up(self):
+        print(f"Leveling up! Current level: {self.level}, experience: {self.exp}")
+        self.level += 1
+        self.hp += 10  # Увеличение HP на уровень
+        self.mp += 5  # Увеличение MP на уровень
+        self.cp += 5  # Увеличение CP на уровень
+        self.dmg += 2  # Увеличение урона на уровень
+        self.save()
+        print(f"New level: {self.level}, new experience threshold: {100 * self.level}")
+
+    def add_experience(self, exp_gained):
+        self.exp += exp_gained
+        print(f"Adding experience: {exp_gained}, current experience: {self.exp}")
+        while self.exp >= 100 * self.level:
+            print(f"Experience {self.exp} >= {100 * self.level}")
+            self.exp -= 100 * self.level
+            self.level_up()
+        self.save()
+        print(f"Final experience: {self.exp}, level: {self.level}")
 
     @property
     def dodge(self):
@@ -28,29 +54,28 @@ class Character(models.Model):
         return self.calculate_crit_chance()
 
     def calculate_dodge(self):
-        if self.role == 'Mage':
-            return self.level * 1.5
-        elif self.role == 'Tank':
-            return self.level * 2
-        elif self.role == 'Duelist':
-            return self.level * 2.5
-        return 0
+        cls_dodge_map = {
+            'Mage': 1.5,
+            'Tank': 2,
+            'Duelist': 2.5
+        }
+        return self.level * cls_dodge_map.get(self.role, 0)
 
     def calculate_crit(self):
-        if self.role == 'Mage':
-            return self.dmg * 5
-        elif self.role == 'Tank':
-            return self.dmg * 2
-        elif self.role == 'Duelist':
-            return self.dmg * 3
+        cls_crit_map = {
+            'Mage': 5,
+            'Tank': 2,
+            'Duelist': 3
+        }
+        return self.dmg * cls_crit_map.get(self.role, 0)
 
     def calculate_crit_chance(self):
-        if self.role == 'Mage':
-            return self.dmg * 0.1
-        elif self.role == 'Tank':
-            return self.dmg * 0.2
-        elif self.role == 'Duelist':
-            return self.dmg * 0.3
+        cls_crit_chance_map = {
+            'Mage': 0.1,
+            'Tank': 0.2,
+            'Duelist': 0.3
+        }
+        return self.dmg * cls_crit_chance_map.get(self.role, 0)
 
     def save(self, *args, **kwargs):
         self._dodge = self.calculate_dodge()
