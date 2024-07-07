@@ -66,6 +66,7 @@ DELETE FROM bot_golem;]]></console>
         <condition column="id" operator="=" value="" active="true" />
       </filter>
     </filter-actions>
+    <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.bot_bossfairy" active-filter-id="" />
     <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.django_admin_log" active-filter-id="" />
     <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.bot_dragon" active-filter-id="EMPTY_FILTER" />
     <filter-actions connection-id="24b3b549-40a0-4393-be51-a2590e8765d7" dataset="public.bot_character" active-filter-id="EMPTY_FILTER" />

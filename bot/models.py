@@ -1,10 +1,9 @@
+import json
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import JSONField
-
 from bot.management.commands.game_dice import apply_random_effect
 import logging
-
 
 
 class Character(models.Model):
@@ -18,32 +17,62 @@ class Character(models.Model):
     exp = models.IntegerField(default=0)
     level = models.IntegerField(default=1)
     effects = models.CharField(max_length=255, null=True, blank=True)
-    state = models.CharField(max_length=50, default='start')
+    state = models.CharField(max_length=50, default='location_selection')
     temp_stats = JSONField(default=dict)
+    regenerate = models.BooleanField(default=False)
+    regenerate_amount = models.IntegerField(default=0)
+    lose_health = models.BooleanField(default=False)
+    lose_health_amount = models.IntegerField(default=0)
+    in_battle = models.BooleanField(default=False)
+    completed_locations = models.IntegerField(default=0)
+    completed_forest_levels = models.IntegerField(default=0)
+    completed_catacombs_levels = models.IntegerField(default=0)
+    completed_magma_levels = models.IntegerField(default=0)
+    current_forest_level = models.IntegerField(default=1)
+    current_catacombs_level = models.IntegerField(default=1)
+    current_magma_level = models.IntegerField(default=1)
+    dodge_modifier = models.IntegerField(default=0)
+    crit_chance_modifier = models.FloatField(default=0.0)
+    skills = models.JSONField(default=dict, blank=True)
+    skill_effects = models.TextField(default='{}')
+
+    def get_skill_effects(self):
+        try:
+            return json.loads(self.skill_effects)
+        except json.JSONDecodeError:
+            return {}
+
+    def add_skill_effect(self, effect_name):
+        effects = self.get_skill_effects()
+        effects[effect_name] = True
+        self.skill_effects = json.dumps(effects)
+        self.save()
+
+    def remove_skill_effect(self, effect_name):
+        effects = self.get_skill_effects()
+        if effect_name in effects:
+            del effects[effect_name]
+            self.skill_effects = json.dumps(effects)
+            self.save()
 
     def level_up(self):
-        print(f"Leveling up! Current level: {self.level}, experience: {self.exp}")
         self.level += 1
-        self.hp += 10  # Увеличение HP на уровень
-        self.mp += 5  # Увеличение MP на уровень
-        self.cp += 5  # Увеличение CP на уровень
-        self.dmg += 2  # Увеличение урона на уровень
+        self.hp += 10
+        self.mp += 5
+        self.cp += 5
+        self.dmg += 2
         self.save()
-        print(f"New level: {self.level}, new experience threshold: {100 * self.level}")
 
     def add_experience(self, exp_gained):
         self.exp += exp_gained
-        print(f"Adding experience: {exp_gained}, current experience: {self.exp}")
         while self.exp >= 100 * self.level:
-            print(f"Experience {self.exp} >= {100 * self.level}")
             self.exp -= 100 * self.level
             self.level_up()
         self.save()
-        print(f"Final experience: {self.exp}, level: {self.level}")
 
     @property
     def dodge(self):
-        return self.calculate_dodge()
+        return self.calculate_dodge() + self.dodge_modifier
 
     @property
     def crit(self):
@@ -51,7 +80,7 @@ class Character(models.Model):
 
     @property
     def crit_chance(self):
-        return self.calculate_crit_chance()
+        return self.calculate_crit_chance() + self.crit_chance_modifier
 
     def calculate_dodge(self):
         cls_dodge_map = {
@@ -82,8 +111,8 @@ class Character(models.Model):
         self._crit_chance = self.calculate_crit_chance()
         super().save(*args, **kwargs)
 
-    def apply_random_effect(self):
-        apply_random_effect(self)
+    # def apply_random_effect(self):
+    #     apply_random_effect(self)
 
     class Meta:
         verbose_name = "Character"
