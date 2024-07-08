@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 from bot.models import Character
 from bot.enemies import Enemy, Goblin, Wolf, Orc, Golem, Dragon, Skeleton, Cerberus, BossFairy, Shadow, Cobalt, \
     BossBear,BossPhoenix,Hydra
-from bot.locations.location_1 import battle
+from bot.battle_logic.lvl_fight_logic import battle
 from django.db import transaction, IntegrityError
 import re
 from functools import wraps

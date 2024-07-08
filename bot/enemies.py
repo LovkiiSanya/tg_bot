@@ -126,10 +126,10 @@ class Orc(Enemy):
 class Golem(Enemy):
     def __init__(self, *args, **kwargs):
         kwargs['enemy_type'] = 'Golem'
-        kwargs['base_hp'] = 400
+        kwargs['base_hp'] = 40
         kwargs['base_dmg'] = 20
-        kwargs['base_cp'] = 75
-        kwargs['exp_reward'] = 250
+        kwargs['base_cp'] = 7
+        kwargs['exp_reward'] = 2500
         super().__init__(*args, **kwargs)
 
 
@@ -176,10 +176,10 @@ class BossFairy(Enemy):
 class BossBear(Enemy):
     def __init__(self, *args, **kwargs):
         kwargs['enemy_type'] = 'Bear'
-        kwargs['base_hp'] = 800
+        kwargs['base_hp'] = 80
         kwargs['base_dmg'] = 100
         kwargs['base_cp'] = 25
-        kwargs['exp_reward'] = 1000
+        kwargs['exp_reward'] = 5000
         super().__init__(*args, **kwargs)
 
 
