@@ -172,7 +172,10 @@ class Command(BaseCommand):
             user = get_or_none(Character, user_id=message.from_user.id)
             if user:
                 nickname = message.text.strip()  # Удаляем лишние пробелы в начале и конце
-                if re.match(ALLOWED_CHARACTERS_PATTERN, nickname) and len(nickname) <= 20:
+
+                if Character.objects.filter(nickname=nickname).exists():
+                    bot.reply_to(message, "This nickname is already taken. Please choose another one.")
+                elif re.match(ALLOWED_CHARACTERS_PATTERN, nickname) and len(nickname) <= 20:
                     user.nickname = nickname
                     user.state = 'class_selection'
                     user.save()
