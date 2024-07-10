@@ -1,30 +1,40 @@
-import time
-import random
 import math
+import random
+
+
+import time
 from bot.management.commands.game_dice import apply_random_effect, reset_effects
-from bot.models import Character
-from bot.enemies import Enemy
-from bot.battle_logic.boss_skills import *
-from bot.battle_logic.hero_skills import *
+from bot.battle_logic.boss_skills import boss_use_skill
+from bot.battle_logic.hero_skills import hero_use_skill
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 
 def battle(bot, chat_id, character, enemies):
-    original_methods = {'calculate_dodge': character.calculate_dodge}
+    original_methods = {"calculate_dodge": character.calculate_dodge}
     apply_random_effect(character)
-    bot.send_message(chat_id, f"🎲 Random effect applied: {character.effects}")
-    # time.sleep(1)
+    bot.send_message(
+        chat_id, "🎲 Random effect applied: {}".format(character.effects)
+    )
 
     character_hp = character.hp
     character_cp = character.cp
-    battle_log = f"⚔️ Battle between {character.nickname} and enemies has begun! ⚔️\n"
+    battle_log = (
+        "⚔️ Battle between {} and enemies has begun! ⚔️\n".format(
+            character.nickname
+        )
+    )
     bot.send_message(chat_id, battle_log)
-    # time.sleep(1)
 
     total_exp = 0
 
-    # Variables for Regenerate/Lose health effects
-    regenerate_amount = character.regenerate_amount if hasattr(character, 'regenerate_amount') else 0
-    lose_health_amount = character.lose_health_amount if hasattr(character, 'lose_health_amount') else 0
+    regenerate_amount = (
+        character.regenerate_amount if hasattr(character, "regenerate_amount") else 0
+    )
+    lose_health_amount = (
+        character.lose_health_amount if hasattr(character, "lose_health_amount") else 0
+    )
 
     for enemy in enemies:
         enemy_hp = enemy.get_hp()
@@ -32,85 +42,155 @@ def battle(bot, chat_id, character, enemies):
         total_exp += enemy.exp_reward
 
         while character_hp > 0 and (enemy_hp > 0 or enemy_cp > 0):
-            # Apply Regenerate/Lose health effects
             if character.regenerate:
                 regenerate_hp = math.ceil(regenerate_amount)
                 character_hp = min(character.hp, character_hp + regenerate_hp)
-                bot.send_message(chat_id,
-                                 f"🌿 {character.nickname} regenerates {regenerate_hp} HP. {character.nickname} has {character_hp} HP now.")
+                bot.send_message(
+                    chat_id,
+                    "{} regenerates {} HP. {} has {} HP now.".format(
+                        character.nickname,
+                        regenerate_hp,
+                        character.nickname,
+                        character_hp,
+                    ),
+                )
 
             if character.lose_health:
                 lose_hp = math.ceil(lose_health_amount)
                 character_hp = max(0, character_hp - lose_hp)
-                bot.send_message(chat_id,
-                                 f"💔 {character.nickname} loses {lose_hp} HP. {character.nickname} has {character_hp} HP now.")
+                bot.send_message(
+                    chat_id,
+                    "{} loses {} HP. {} has {} HP now.".format(
+                        character.nickname, lose_hp, character.nickname, character_hp
+                    ),
+                )
 
-            # Character uses skill or attacks enemy
-            if character.effects != 'rooted':
-                if character.skills.get("root") and random.random() < 0.5:  # 50% chance to use 'root'
+            if character.effects != "rooted":
+                if character.skills.get("root") and random.random() < 0.5:
                     hero_use_skill(character, "root", enemy, bot, chat_id)
                 elif random.random() < (character.calculate_crit_chance() / 100):
                     crit_dmg = character.calculate_crit()
                     if enemy_cp > 0:
                         damage_to_enemy_cp = math.ceil(min(crit_dmg, enemy_cp))
                         enemy_cp -= damage_to_enemy_cp
-                        battle_log = f"💥 {character.nickname} crits {enemy.name} for {damage_to_enemy_cp} CP. {enemy.enemy_type} has {enemy_cp} CP left.\n"
+                        battle_log = (
+                            "{} crits {} for {} CP. {} has {} CP left.\n".format(
+                                character.nickname,
+                                enemy.name,
+                                damage_to_enemy_cp,
+                                enemy.enemy_type,
+                                enemy_cp,
+                            )
+                        )
                     else:
                         damage_to_enemy_hp = math.ceil(min(crit_dmg, enemy_hp))
                         enemy_hp -= damage_to_enemy_hp
-                        battle_log = f"💥 {character.nickname} crits {enemy.name} for {damage_to_enemy_hp} HP. {enemy.enemy_type} has {enemy_hp} HP left.\n"
+                        battle_log = (
+                            "{} crits {} for {} HP. {} has {} HP left.\n".format(
+                                character.nickname,
+                                enemy.name,
+                                damage_to_enemy_hp,
+                                enemy.enemy_type,
+                                enemy_hp,
+                            )
+                        )
                 else:
                     if enemy_cp > 0:
                         damage_to_enemy_cp = math.ceil(min(character.dmg, enemy_cp))
                         enemy_cp -= damage_to_enemy_cp
-                        battle_log = f"⚔️ {character.nickname} attacks {enemy.name} for {damage_to_enemy_cp} CP. {enemy.enemy_type} has {enemy_cp} CP left.\n"
+                        battle_log = (
+                            "{} attacks {} for {} CP. {} has {} CP left.\n".format(
+                                character.nickname,
+                                enemy.name,
+                                damage_to_enemy_cp,
+                                enemy.enemy_type,
+                                enemy_cp,
+                            )
+                        )
                     else:
                         damage_to_enemy_hp = math.ceil(min(character.dmg, enemy_hp))
                         enemy_hp -= damage_to_enemy_hp
-                        battle_log = f"⚔️ {character.nickname} attacks {enemy.name} for {damage_to_enemy_hp} HP. {enemy.enemy_type} has {enemy_hp} HP left.\n"
+                        battle_log = (
+                            "{} attacks {} for {} HP. {} has {} HP left.\n".format(
+                                character.nickname,
+                                enemy.name,
+                                damage_to_enemy_hp,
+                                enemy.enemy_type,
+                                enemy_hp,
+                            )
+                        )
 
                 bot.send_message(chat_id, battle_log)
-                # time.sleep(1)
             else:
-                bot.send_message(chat_id, f"{character.nickname} is rooted and cannot attack.")
-                # time.sleep(1)
+                bot.send_message(
+                    chat_id,
+                    "{} is rooted and cannot attack.".format(character.nickname)
+                )
 
             if enemy_hp == 0 and enemy_cp == 0:
-                battle_log = f"☠️ {enemy.name} defeated!\n"
+                battle_log = "{} defeated!\n".format(enemy.name)
                 bot.send_message(chat_id, battle_log)
-                # time.sleep(1)
                 if "root" in enemy.skills:
                     character.skills["root"] = True
-                    battle_log = f"🎉 {character.nickname} has learned the 'root' skill from {enemy.name}!\n"
+                    battle_log = (
+                        "{} has learned the 'root' skill from {}!\n".format(
+                            character.nickname, enemy.name
+                        )
+                    )
                     bot.send_message(chat_id, battle_log)
                 break
 
-            # Enemy uses skill or attacks character
-            if enemy.skills.get("root") and random.random() < 1:  # 100% chance to use 'root'
+            if enemy.skills.get("root") and random.random() < 1:
                 boss_use_skill(enemy, "root", character, bot, chat_id)
             elif random.random() < (character.calculate_dodge() / 100):
-                battle_log = f"🛡️ {character.nickname} dodges {enemy.name}'s attack!\n"
+                battle_log = "{} dodges {}'s attack!\n".format(
+                    character.nickname, enemy.name
+                )
             else:
                 if character_cp > 0:
-                    damage_to_character_cp = math.floor(min(enemy.get_dmg(), character_cp))
+                    damage_to_character_cp = math.floor(
+                        min(enemy.get_dmg(), character_cp)
+                    )
                     character_cp -= damage_to_character_cp
-                    battle_log = f"💥 {enemy.name} attacks {character.nickname} for {damage_to_character_cp} CP. {character.nickname} has {character_cp} CP left.\n"
+                    battle_log = (
+                        "{} attacks {} for {} CP. {} has {} CP left.\n".format(
+                            enemy.name,
+                            character.nickname,
+                            damage_to_character_cp,
+                            character.nickname,
+                            character_cp,
+                        )
+                    )
                 else:
-                    damage_to_character_hp = math.floor(min(enemy.get_dmg(), character_hp))
+                    damage_to_character_hp = math.floor(
+                        min(enemy.get_dmg(), character_hp)
+                    )
                     character_hp -= damage_to_character_hp
-                    battle_log = f"💥 {enemy.name} attacks {character.nickname} for {damage_to_character_hp} HP. {character.nickname} has {character_hp} HP left.\n"
+                    battle_log = (
+                        "{} attacks {} for {} HP. {} has {} HP left.\n".format(
+                            enemy.name,
+                            character.nickname,
+                            damage_to_character_hp,
+                            character.nickname,
+                            character_hp,
+                        )
+                    )
 
             bot.send_message(chat_id, battle_log)
-            # time.sleep(1)
 
             if character_hp == 0:
-                battle_log = f"☠️ {character.nickname} defeated!\n"
+                battle_log = "{} defeated!\n".format(character.nickname)
                 bot.send_message(chat_id, battle_log)
                 exp_gain = math.ceil(total_exp * 0.25)
                 character.add_experience(exp_gain)
                 final_exp = character.exp
                 level = character.level
-                bot.send_message(chat_id, f"🏆 Exp gained: {exp_gain}, Total exp: {final_exp}, Level: {level}")
+                bot.send_message(
+                    chat_id,
+                    "🏆 Exp gained: {}, Total exp: {}, Level: {}".format(
+                        exp_gain, final_exp, level
+                    ),
+                )
                 reset_effects(character, original_methods)
                 character.in_battle = False
                 character.save()
@@ -121,44 +201,74 @@ def battle(bot, chat_id, character, enemies):
         battle_won = True
 
     if battle_won:
-        state_parts = character.state.split('_')
-        location = '_'.join(state_parts[:2])
+        state_parts = character.state.split("_")
+        location = "_".join(state_parts[:2])
         current_level = int(state_parts[-1])
 
-        print(f"Current location: {location}, Current level: {current_level}")  # Отладочное сообщение
+        print(
+            "Current location: {}, Current level: {}".format(location, current_level)
+        )
 
-        if location == 'location_1':
+        if location == "location_1":
             character.completed_forest_levels += 1
             character.current_forest_level = current_level + 1
-            character.state = f'location_1_level_{character.current_forest_level}'
-            print(f"New forest level: {character.current_forest_level}")  # Отладочное сообщение
+            character.state = "location_1_level_{}".format(
+                character.current_forest_level
+            )
+            print(
+                "New forest level: {}".format(character.current_forest_level)
+            )
             character.save()
-        elif location == 'location_2':
+        elif location == "location_2":
             character.completed_catacombs_levels += 1
             character.current_catacombs_level = current_level + 1
-            character.state = f'location_2_level_{character.current_catacombs_level}'
-            print(f"New catacombs level: {character.current_catacombs_level}")  # Отладочное сообщение
-        elif location == 'location_3':
+            character.state = "location_2_level_{}".format(
+                character.current_catacombs_level
+            )
+            print(
+                "New catacombs level: {}".format(character.current_catacombs_level)
+            )
+
+            character.save()
+        elif location == "location_3":
             character.completed_magma_levels += 1
             character.current_magma_level = current_level + 1
-            character.state = f'location_3_level_{character.current_magma_level}'
-            print(f"New magma level: {character.current_magma_level}")  # Отладочное сообщение
+            character.state = "location_3_level_{}".format(
+                character.current_magma_level,
+            )
+            print(
+                "New magma level: {}".format(character.current_magma_level),
+            )
+            character.save()
 
-        if character.completed_forest_levels >= 10 and character.completed_catacombs_levels >= 10 and character.completed_magma_levels >= 10:
+        if (character.completed_forest_levels >= 10 and
+            character.completed_catacombs_levels >= 10 and
+                character.completed_magma_levels >= 10):
             character.completed_locations += 1
 
         character.in_battle = False
         character.save()
 
-        print(f"User state after winning the battle: {character.state}")  # Отладочное сообщение
+        logging.info(
+            "User state after winning the battle: {}".format(character.state),
+        )
 
-        battle_log = f"🎉 {character.nickname} defeated all enemies in level {current_level}!\n"
+        battle_log = (
+            "🎉 {} defeated all enemies in level {}!\n".format(
+                character.nickname, current_level,
+            )
+        )
         bot.send_message(chat_id, battle_log)
 
         exp_gain = math.ceil(total_exp)
         character.add_experience(exp_gain)
         final_exp = character.exp
         level = character.level
-        bot.send_message(chat_id, f"🏆 Exp gained: {exp_gain}, Total exp: {final_exp}, Level: {level}")
+        bot.send_message(
+            chat_id,
+            "🏆 Exp gained: {}, Total exp: {}, Level: {}".format(
+                exp_gain, final_exp, level,
+            ),
+        )
 
     reset_effects(character, original_methods)

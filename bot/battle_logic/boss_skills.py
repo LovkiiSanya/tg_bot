@@ -1,6 +1,7 @@
+import random
+
 from bot.models import Character
 from bot.enemies import Enemy
-import random
 import time
 
 
@@ -12,75 +13,154 @@ def boss_use_skill(enemy, skill_name, target, bot, chat_id):
     else:
         target_name = "Unknown"
 
-    if skill_name == "root" and enemy.skills.get("root") and random.random() <= 0.5:  # 50% chance to use the skill
-        if not target.get_skill_effects().get('rooted'):
-            target.add_skill_effect('rooted')
+    if skill_name == "root" and enemy.skills.get("root") and random.random() <= 0.5:
+        if not target.get_skill_effects().get("rooted"):
+            target.add_skill_effect("rooted")
+            bot.send_message(
+                chat_id,
+                "{} uses 'root' on {}. {} cannot attack for 3 turns.".format(
+                    enemy.name, target_name, target_name
+                ),
+            )
 
-            bot.send_message(chat_id,
-                             f"{enemy.name} uses 'root' on {target_name}. {target_name} cannot attack for 3 turns.")
-
-            # Logic for handling root for 3 turns
             for turn in range(3):
-                if isinstance(target, Character) and target.hp <= 0:
-                    break
-                elif isinstance(target, Enemy) and target.base_hp <= 0:
+                if (
+                    isinstance(target, Character) and target.hp <= 0
+                ) or (
+                    isinstance(target, Enemy) and target.base_hp <= 0
+                ):
                     break
 
-                if target.get_skill_effects().get('rooted'):  # Ensure target is rooted
-                    # Boss attacks during root effect
-                    if random.random() < 0.25:  # Assuming 25% crit chance for boss
-                        crit_dmg = enemy.base_dmg * 2  # Assuming crit is double damage for boss
+                if target.get_skill_effects().get("rooted"):
+                    if random.random() < 0.25:
+                        crit_dmg = enemy.base_dmg * 2
                         if target.cp > 0:
                             damage_to_target_cp = min(crit_dmg, target.cp)
                             target.cp -= damage_to_target_cp
-                            battle_log = f"💥 {enemy.name} crits {target_name} for {damage_to_target_cp} CP. {target_name} has {target.cp} CP left.\n"
+                            battle_log = (
+                                "💥 {} crits {} for {} CP. {} has {} CP left.\n".format(
+                                    enemy.name,
+                                    target_name,
+                                    damage_to_target_cp,
+                                    target_name,
+                                    target.cp,
+                                )
+                            )
                         else:
                             damage_to_target_hp = min(crit_dmg, target.hp)
                             target.hp -= damage_to_target_hp
-                            battle_log = f"💥 {enemy.name} crits {target_name} for {damage_to_target_hp} HP. {target_name} has {target.hp} HP left.\n"
+                            battle_log = (
+                                "💥 {} crits {} for {} HP. {} has {} HP left.\n".format(
+                                    enemy.name,
+                                    target_name,
+                                    damage_to_target_hp,
+                                    target_name,
+                                    target.hp,
+                                )
+                            )
                     else:
                         if target.cp > 0:
                             damage_to_target_cp = min(enemy.base_dmg, target.cp)
                             target.cp -= damage_to_target_cp
-                            battle_log = f"⚔️ {enemy.name} attacks {target_name} for {damage_to_target_cp} CP. {target_name} has {target.cp} CP left.\n"
+                            battle_log = (
+                                "⚔️ {} attacks {} for {} CP. {} has {} CP left.\n".format(
+                                    enemy.name,
+                                    target_name,
+                                    damage_to_target_cp,
+                                    target_name,
+                                    target.cp,
+                                )
+                            )
                         else:
                             damage_to_target_hp = min(enemy.base_dmg, target.hp)
                             target.hp -= damage_to_target_hp
-                            battle_log = f"⚔️ {enemy.name} attacks {target_name} for {damage_to_target_hp} HP. {target_name} has {target.hp} HP left.\n"
+                            battle_log = (
+                                "⚔️ {} attacks {} for {} HP. {} has {} HP left.\n".format(
+                                    enemy.name,
+                                    target_name,
+                                    damage_to_target_hp,
+                                    target_name,
+                                    target.hp,
+                                )
+                            )
 
                     bot.send_message(chat_id, battle_log)
                     time.sleep(1)
-                    bot.send_message(chat_id, f"Turn {turn + 1}: {target_name} still cannot attack.")
+                    bot.send_message(
+                        chat_id,
+                        "Turn {}: {} still cannot attack.".format(turn + 1, target_name),
+                    )
                     time.sleep(1)
 
-            target.remove_skill_effect('rooted')
+            target.remove_skill_effect("rooted")
 
             if isinstance(enemy, Enemy) and enemy.base_hp <= 0:
                 target.skills["root"] = True
                 target.save()
-                bot.send_message(chat_id, f"{target_name} has learned the 'root' skill from defeating {enemy.name}.")
+                bot.send_message(
+                    chat_id,
+                    "{} has learned the 'root' skill from defeating {}.".format(
+                        target_name, enemy.name
+                    ),
+                )
         else:
-            bot.send_message(chat_id, f"{target_name} is already rooted and cannot be affected again.")
+            bot.send_message(
+                chat_id,
+                "{} is already rooted and cannot be affected again.".format(
+                    target_name,
+                ),
+            )
     else:
-        # Boss attacks normally if the skill doesn't activate
-        if random.random() < 0.25:  # Assuming 25% crit chance for boss
-            crit_dmg = enemy.base_dmg * 2  # Assuming crit is double damage for boss
+        if random.random() < 0.25:
+            crit_dmg = enemy.base_dmg * 2
             if target.cp > 0:
                 damage_to_target_cp = min(crit_dmg, target.cp)
                 target.cp -= damage_to_target_cp
-                battle_log = f"💥 {enemy.name} crits {target_name} for {damage_to_target_cp} CP. {target_name} has {target.cp} CP left.\n"
+                battle_log = (
+                    "💥 {} crits {} for {} CP. {} has {} CP left.\n".format(
+                        enemy.name,
+                        target_name,
+                        damage_to_target_cp,
+                        target_name,
+                        target.cp,
+                    )
+                )
             else:
                 damage_to_target_hp = min(crit_dmg, target.hp)
                 target.hp -= damage_to_target_hp
-                battle_log = f"💥 {enemy.name} crits {target_name} for {damage_to_target_hp} HP. {target_name} has {target.hp} HP left.\n"
+                battle_log = (
+                    "💥 {} crits {} for {} HP. {} has {} HP left.\n".format(
+                        enemy.name,
+                        target_name,
+                        damage_to_target_hp,
+                        target_name,
+                        target.hp,
+                    )
+                )
         else:
             if target.cp > 0:
                 damage_to_target_cp = min(enemy.base_dmg, target.cp)
                 target.cp -= damage_to_target_cp
-                battle_log = f"⚔️ {enemy.name} attacks {target_name} for {damage_to_target_cp} CP. {target_name} has {target.cp} CP left.\n"
+                battle_log = (
+                    "⚔️ {} attacks {} for {} CP. {} has {} CP left.\n".format(
+                        enemy.name,
+                        target_name,
+                        damage_to_target_cp,
+                        target_name,
+                        target.cp,
+                    )
+                )
             else:
                 damage_to_target_hp = min(enemy.base_dmg, target.hp)
                 target.hp -= damage_to_target_hp
-                battle_log = f"⚔️ {enemy.name} attacks {target_name} for {damage_to_target_hp} HP. {target_name} has {target.hp} HP left.\n"
+                battle_log = (
+                    "⚔️ {} attacks {} for {} HP. {} has {} HP left.\n".format(
+                        enemy.name,
+                        target_name,
+                        damage_to_target_hp,
+                        target_name,
+                        target.hp,
+                    )
+                )
 
         bot.send_message(chat_id, battle_log)

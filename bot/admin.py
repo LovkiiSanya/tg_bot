@@ -4,4 +4,3 @@ from .enemies import Enemy
 
 admin.site.register(Enemy)
 admin.site.register(Character)
-

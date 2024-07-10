@@ -9,12 +9,12 @@ class Enemy(models.Model):
     base_cp = models.IntegerField(default=10)
     base_dmg = models.IntegerField(default=10)
     level = models.IntegerField(default=1)
-    enemy_type = models.CharField(max_length=50, default='Generic')
+    enemy_type = models.CharField(max_length=50, default="Generic")
     exp_reward = models.IntegerField(default=50)
     weakened = models.BooleanField(default=False)
     skills = models.JSONField(default=dict, blank=True)
     effects = models.CharField(max_length=255, null=True, blank=True)
-    skill_effects = models.TextField(default='{}')
+    skill_effects = models.TextField(default="{}")
 
     def get_skill_effects(self):
         try:
@@ -65,129 +65,129 @@ class Enemy(models.Model):
 
 class Goblin(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Goblin'
-        kwargs['base_hp'] = 50
-        kwargs['base_dmg'] = 5
-        kwargs['base_cp'] = 0
-        kwargs['exp_reward'] = 50
+        kwargs["enemy_type"] = "Goblin"
+        kwargs["base_hp"] = 50
+        kwargs["base_dmg"] = 5
+        kwargs["base_cp"] = 0
+        kwargs["exp_reward"] = 50
         super().__init__(*args, **kwargs)
 
 
 class Skeleton(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Skeleton'
-        kwargs['base_hp'] = 100
-        kwargs['base_dmg'] = 25
-        kwargs['base_cp'] = 10
-        kwargs['exp_reward'] = 100
+        kwargs["enemy_type"] = "Skeleton"
+        kwargs["base_hp"] = 100
+        kwargs["base_dmg"] = 25
+        kwargs["base_cp"] = 10
+        kwargs["exp_reward"] = 100
         super().__init__(*args, **kwargs)
 
 
 class Shadow(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Shadow'
-        kwargs['base_hp'] = 80
-        kwargs['base_dmg'] = 30
-        kwargs['base_cp'] = 15
-        kwargs['exp_reward'] = 120
+        kwargs["enemy_type"] = "Shadow"
+        kwargs["base_hp"] = 80
+        kwargs["base_dmg"] = 30
+        kwargs["base_cp"] = 15
+        kwargs["exp_reward"] = 120
         super().__init__(*args, **kwargs)
 
 
 class Cobalt(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Cobalt'
-        kwargs['base_hp'] = 80
-        kwargs['base_dmg'] = 30
-        kwargs['base_cp'] = 15
-        kwargs['exp_reward'] = 120
+        kwargs["enemy_type"] = "Cobalt"
+        kwargs["base_hp"] = 80
+        kwargs["base_dmg"] = 30
+        kwargs["base_cp"] = 15
+        kwargs["exp_reward"] = 120
         super().__init__(*args, **kwargs)
 
 
 class Wolf(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Wolf'
-        kwargs['base_hp'] = 10
-        kwargs['base_dmg'] = 20
-        kwargs['base_cp'] = 5
-        kwargs['exp_reward'] = 100
+        kwargs["enemy_type"] = "Wolf"
+        kwargs["base_hp"] = 10
+        kwargs["base_dmg"] = 20
+        kwargs["base_cp"] = 5
+        kwargs["exp_reward"] = 100
         super().__init__(*args, **kwargs)
 
 
 class Orc(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Orc'
-        kwargs['base_hp'] = 15
-        kwargs['base_dmg'] = 25
-        kwargs['base_cp'] = 15
-        kwargs['exp_reward'] = 200
+        kwargs["enemy_type"] = "Orc"
+        kwargs["base_hp"] = 15
+        kwargs["base_dmg"] = 25
+        kwargs["base_cp"] = 15
+        kwargs["exp_reward"] = 200
         super().__init__(*args, **kwargs)
 
 
 class Golem(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Golem'
-        kwargs['base_hp'] = 40
-        kwargs['base_dmg'] = 20
-        kwargs['base_cp'] = 7
-        kwargs['exp_reward'] = 2500
+        kwargs["enemy_type"] = "Golem"
+        kwargs["base_hp"] = 40
+        kwargs["base_dmg"] = 20
+        kwargs["base_cp"] = 7
+        kwargs["exp_reward"] = 2500
         super().__init__(*args, **kwargs)
 
 
 class Cerberus(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Cerberus'
-        kwargs['base_hp'] = 100
-        kwargs['base_dmg'] = 20
-        kwargs['base_cp'] = 5
-        kwargs['exp_reward'] = 100
+        kwargs["enemy_type"] = "Cerberus"
+        kwargs["base_hp"] = 100
+        kwargs["base_dmg"] = 20
+        kwargs["base_cp"] = 5
+        kwargs["exp_reward"] = 100
         super().__init__(*args, **kwargs)
 
 
 class Hydra(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Hydra'
-        kwargs['base_hp'] = 100
-        kwargs['base_dmg'] = 20
-        kwargs['base_cp'] = 5
-        kwargs['exp_reward'] = 100
+        kwargs["enemy_type"] = "Hydra"
+        kwargs["base_hp"] = 100
+        kwargs["base_dmg"] = 20
+        kwargs["base_cp"] = 5
+        kwargs["exp_reward"] = 100
         super().__init__(*args, **kwargs)
 
 
 class Dragon(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Dragon'
-        kwargs['base_hp'] = 1000
-        kwargs['base_dmg'] = 100
-        kwargs['base_cp'] = 250
-        kwargs['exp_reward'] = 500
+        kwargs["enemy_type"] = "Dragon"
+        kwargs["base_hp"] = 1000
+        kwargs["base_dmg"] = 100
+        kwargs["base_cp"] = 250
+        kwargs["exp_reward"] = 500
         super().__init__(*args, **kwargs)
 
 
 class BossFairy(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Fairy'
-        kwargs['base_hp'] = 800
-        kwargs['base_dmg'] = 100
-        kwargs['base_cp'] = 25
-        kwargs['exp_reward'] = 1000
+        kwargs["enemy_type"] = "Fairy"
+        kwargs["base_hp"] = 800
+        kwargs["base_dmg"] = 100
+        kwargs["base_cp"] = 25
+        kwargs["exp_reward"] = 1000
         super().__init__(*args, **kwargs)
 
 
 class BossBear(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Bear'
-        kwargs['base_hp'] = 80
-        kwargs['base_dmg'] = 100
-        kwargs['base_cp'] = 25
-        kwargs['exp_reward'] = 5000
+        kwargs["enemy_type"] = "Bear"
+        kwargs["base_hp"] = 80
+        kwargs["base_dmg"] = 100
+        kwargs["base_cp"] = 25
+        kwargs["exp_reward"] = 5000
         super().__init__(*args, **kwargs)
 
 
 class BossPhoenix(Enemy):
     def __init__(self, *args, **kwargs):
-        kwargs['enemy_type'] = 'Phoenix'
-        kwargs['base_hp'] = 800
-        kwargs['base_dmg'] = 100
-        kwargs['base_cp'] = 25
-        kwargs['exp_reward'] = 1000
+        kwargs["enemy_type"] = "Phoenix"
+        kwargs["base_hp"] = 800
+        kwargs["base_dmg"] = 100
+        kwargs["base_cp"] = 25
+        kwargs["exp_reward"] = 1000
         super().__init__(*args, **kwargs)

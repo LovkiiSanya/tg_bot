@@ -17,7 +17,7 @@ class Character(models.Model):
     exp = models.IntegerField(default=0)
     level = models.IntegerField(default=1)
     effects = models.CharField(max_length=255, null=True, blank=True)
-    state = models.CharField(max_length=50, default='location_selection')
+    state = models.CharField(max_length=50, default="location_selection")
     temp_stats = JSONField(default=dict)
     regenerate = models.BooleanField(default=False)
     regenerate_amount = models.IntegerField(default=0)
@@ -34,7 +34,7 @@ class Character(models.Model):
     dodge_modifier = models.IntegerField(default=0)
     crit_chance_modifier = models.FloatField(default=0.0)
     skills = models.JSONField(default=dict, blank=True)
-    skill_effects = models.TextField(default='{}')
+    skill_effects = models.TextField(default="{}")
 
     def get_skill_effects(self):
         try:
@@ -84,25 +84,25 @@ class Character(models.Model):
 
     def calculate_dodge(self):
         cls_dodge_map = {
-            'Mage': 1.5,
-            'Tank': 2,
-            'Duelist': 2.5
+            "Mage": 1.5,
+            "Tank": 2,
+            "Duelist": 2.5,
         }
         return self.level * cls_dodge_map.get(self.role, 0)
 
     def calculate_crit(self):
         cls_crit_map = {
-            'Mage': 5,
-            'Tank': 2,
-            'Duelist': 3
+            "Mage": 5,
+            "Tank": 2,
+            "Duelist": 3,
         }
         return self.dmg * cls_crit_map.get(self.role, 0)
 
     def calculate_crit_chance(self):
         cls_crit_chance_map = {
-            'Mage': 0.1,
-            'Tank': 0.2,
-            'Duelist': 0.3
+            "Mage": 0.1,
+            "Tank": 0.2,
+            "Duelist": 0.3,
         }
         return self.dmg * cls_crit_chance_map.get(self.role, 0)
 
@@ -111,12 +111,12 @@ class Character(models.Model):
         self._crit_chance = self.calculate_crit_chance()
         super().save(*args, **kwargs)
 
-    # def apply_random_effect(self):
-    #     apply_random_effect(self)
-
     class Meta:
         verbose_name = "Character"
         verbose_name_plural = "Characters"
 
     def __str__(self):
-        return f"Character(dmg={self.dmg}, dodge={self.dodge}%, crit={self.crit}, crit_chance={self.crit_chance}%, exp={self.exp}, level={self.level})"
+        return (
+            f"Character(dmg={self.dmg}, dodge={self.dodge}%,"
+            f" crit={self.crit}, crit_chance={self.crit_chance}%, exp={self.exp}, level={self.level})"
+        )
