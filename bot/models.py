@@ -1,38 +1,75 @@
 import json
 from django.db import models
-from django.contrib.auth.models import User
-from django.db.models import JSONField
-from bot.management.commands.game_dice import apply_random_effect
-import logging
+
+# Constants
+MAX_NICKNAME_LENGTH = 50
+MAX_ROLE_LENGTH = 50
+DEFAULT_HP = 100
+DEFAULT_MP = 10
+DEFAULT_CP = 10
+DEFAULT_DMG = 10
+DEFAULT_EXP = 0
+DEFAULT_LEVEL = 1
+DEFAULT_EFFECTS = ""
+DEFAULT_STATE = "Idle"
+DEFAULT_REGENERATE = False
+DEFAULT_REGENERATE_AMOUNT = 0
+DEFAULT_LOSE_HEALTH = False
+DEFAULT_LOSE_HEALTH_AMOUNT = 0
+DEFAULT_IN_BATTLE = False
+DEFAULT_COMPLETED_LOCATIONS = 0
+DEFAULT_COMPLETED_FOREST_LEVELS = 0
+DEFAULT_COMPLETED_CATACOMBS_LEVELS = 0
+DEFAULT_COMPLETED_MAGMA_LEVELS = 1
+DEFAULT_CURRENT_FOREST_LEVEL = 1
+DEFAULT_CURRENT_CATACOMBS_LEVEL = 1
+DEFAULT_CURRENT_MAGMA_LEVEL = 1
+DEFAULT_DODGE_MODIFIER = 0
+DEFAULT_CRIT_CHANCE_MODIFIER = 0.0
+LEVEL_UP_HP_INCREMENT = 20
+LEVEL_UP_MP_INCREMENT = 5
+LEVEL_UP_CP_INCREMENT = 5
+LEVEL_UP_DMG_INCREMENT = 5
+EXP_PER_LEVEL = 100
+DODGE_MAP = {'Mage': 1.5,
+             'Tank': 2,
+             'Duelist': 2.5}
+CRIT_MAP = {'Mage': 5,
+            'Tank': 2,
+            'Duelist': 3}
+CRIT_CHANCE_MAP = {'Mage': 0.1,
+                   'Tank': 0.2,
+                   'Duelist': 0.3}
 
 
+# Updated Models
 class Character(models.Model):
-    user_id = models.IntegerField(unique=True, default=0)
-    nickname = models.CharField(max_length=50, null=True, blank=True)
-    role = models.CharField(max_length=20, null=True, blank=True)
-    hp = models.IntegerField(default=100)
-    mp = models.IntegerField(default=50)
-    cp = models.IntegerField(default=10)
-    dmg = models.IntegerField(default=0)
-    exp = models.IntegerField(default=0)
-    level = models.IntegerField(default=1)
+    user_id = models.IntegerField(unique=True)
+    nickname = models.CharField(max_length=MAX_NICKNAME_LENGTH, null=True, blank=True)
+    role = models.CharField(max_length=MAX_ROLE_LENGTH, null=True, blank=True)
+    hp = models.IntegerField(default=DEFAULT_HP)
+    mp = models.IntegerField(default=DEFAULT_MP)
+    cp = models.IntegerField(default=DEFAULT_CP)
+    dmg = models.IntegerField(default=DEFAULT_DMG)
+    exp = models.IntegerField(default=DEFAULT_EXP)
+    level = models.IntegerField(default=DEFAULT_LEVEL)
     effects = models.CharField(max_length=255, null=True, blank=True)
-    state = models.CharField(max_length=50, default="location_selection")
-    temp_stats = JSONField(default=dict)
-    regenerate = models.BooleanField(default=False)
-    regenerate_amount = models.IntegerField(default=0)
-    lose_health = models.BooleanField(default=False)
-    lose_health_amount = models.IntegerField(default=0)
-    in_battle = models.BooleanField(default=False)
-    completed_locations = models.IntegerField(default=0)
-    completed_forest_levels = models.IntegerField(default=0)
-    completed_catacombs_levels = models.IntegerField(default=0)
-    completed_magma_levels = models.IntegerField(default=0)
-    current_forest_level = models.IntegerField(default=1)
-    current_catacombs_level = models.IntegerField(default=1)
-    current_magma_level = models.IntegerField(default=1)
-    dodge_modifier = models.IntegerField(default=0)
-    crit_chance_modifier = models.FloatField(default=0.0)
+    state = models.CharField(max_length=MAX_ROLE_LENGTH, default=DEFAULT_STATE)
+    temp_stats = models.JSONField(default=dict)
+    regenerate = models.BooleanField(default=DEFAULT_REGENERATE)
+    regenerate_amount = models.IntegerField(default=DEFAULT_REGENERATE_AMOUNT)
+    lose_health = models.BooleanField(default=DEFAULT_LOSE_HEALTH)
+    lose_health_amount = models.IntegerField(default=DEFAULT_LOSE_HEALTH_AMOUNT)
+    in_battle = models.BooleanField(default=DEFAULT_IN_BATTLE)
+    completed_locations = models.IntegerField(default=DEFAULT_COMPLETED_LOCATIONS)
+    completed_forest_levels = models.IntegerField(default=DEFAULT_COMPLETED_FOREST_LEVELS)
+    completed_catacombs_levels = models.IntegerField(default=DEFAULT_COMPLETED_CATACOMBS_LEVELS)
+    completed_magma_levels = models.IntegerField(default=DEFAULT_COMPLETED_MAGMA_LEVELS)
+    current_forest_level = models.IntegerField(default=DEFAULT_CURRENT_FOREST_LEVEL)
+    current_catacombs_level = models.IntegerField(default=DEFAULT_CURRENT_CATACOMBS_LEVEL)
+    current_magma_level = models.IntegerField(default=DEFAULT_CURRENT_MAGMA_LEVEL)
+    dodge_modifier = models.IntegerField(default=DEFAULT_DODGE_MODIFIER)
+    crit_chance_modifier = models.FloatField(default=DEFAULT_CRIT_CHANCE_MODIFIER)
     skills = models.JSONField(default=dict, blank=True)
     skill_effects = models.TextField(default="{}")
 
@@ -51,22 +88,22 @@ class Character(models.Model):
     def remove_skill_effect(self, effect_name):
         effects = self.get_skill_effects()
         if effect_name in effects:
-            del effects[effect_name]
+            effects.pop(effect_name, None)
             self.skill_effects = json.dumps(effects)
             self.save()
 
     def level_up(self):
         self.level += 1
-        self.hp += 10
-        self.mp += 5
-        self.cp += 5
-        self.dmg += 2
+        self.hp += LEVEL_UP_HP_INCREMENT
+        self.mp += LEVEL_UP_MP_INCREMENT
+        self.cp += LEVEL_UP_CP_INCREMENT
+        self.dmg += LEVEL_UP_DMG_INCREMENT
         self.save()
 
     def add_experience(self, exp_gained):
         self.exp += exp_gained
-        while self.exp >= 100 * self.level:
-            self.exp -= 100 * self.level
+        while self.exp >= EXP_PER_LEVEL * self.level:
+            self.exp -= EXP_PER_LEVEL * self.level
             self.level_up()
         self.save()
 
@@ -83,28 +120,13 @@ class Character(models.Model):
         return self.calculate_crit_chance() + self.crit_chance_modifier
 
     def calculate_dodge(self):
-        cls_dodge_map = {
-            "Mage": 1.5,
-            "Tank": 2,
-            "Duelist": 2.5,
-        }
-        return self.level * cls_dodge_map.get(self.role, 0)
+        return self.level * DODGE_MAP.get(self.role, 0)
 
     def calculate_crit(self):
-        cls_crit_map = {
-            "Mage": 5,
-            "Tank": 2,
-            "Duelist": 3,
-        }
-        return self.dmg * cls_crit_map.get(self.role, 0)
+        return self.dmg * CRIT_MAP.get(self.role, 0)
 
     def calculate_crit_chance(self):
-        cls_crit_chance_map = {
-            "Mage": 0.1,
-            "Tank": 0.2,
-            "Duelist": 0.3,
-        }
-        return self.dmg * cls_crit_chance_map.get(self.role, 0)
+        return self.dmg * CRIT_CHANCE_MAP.get(self.role, 0)
 
     def save(self, *args, **kwargs):
         self._dodge = self.calculate_dodge()
@@ -116,7 +138,8 @@ class Character(models.Model):
         verbose_name_plural = "Characters"
 
     def __str__(self):
-        return (
-            f"Character(dmg={self.dmg}, dodge={self.dodge}%,"
-            f" crit={self.crit}, crit_chance={self.crit_chance}%, exp={self.exp}, level={self.level})"
+        return "Character(dmg={}, dodge={}%, crit={}, crit_chance={}%, exp={}, level={})".format(
+            self.dmg, self.dodge, self.crit, self.crit_chance, self.exp, self.level
         )
+
+

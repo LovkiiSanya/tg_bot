@@ -1,5 +1,5 @@
 import random
-from bot.enemies import Enemy
+from bot.enemies import EnemyModel
 
 
 def apply_random_effect(character):
@@ -107,10 +107,10 @@ def reset_effects(character, original_methods):
 
 
 def weaken_enemies():
-    for enemy in Enemy.objects.all():
+    for enemy in EnemyModel.objects.all():
         enemy.weaken()
 
 
 def unweaken_enemies():
-    for enemy in Enemy.objects.all():
+    for enemy in EnemyModel.objects.all():
         enemy.unweaken()

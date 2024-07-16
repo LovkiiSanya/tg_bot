@@ -1,14 +1,14 @@
 import random
 
 from bot.models import Character
-from bot.enemies import Enemy
+from bot.enemies import EnemyModel
 import time
 
 
 def boss_use_skill(enemy, skill_name, target, bot, chat_id):
     if isinstance(target, Character):
         target_name = target.nickname
-    elif isinstance(target, Enemy):
+    elif isinstance(target, EnemyModel):
         target_name = target.name
     else:
         target_name = "Unknown"
@@ -27,7 +27,7 @@ def boss_use_skill(enemy, skill_name, target, bot, chat_id):
                 if (
                     isinstance(target, Character) and target.hp <= 0
                 ) or (
-                    isinstance(target, Enemy) and target.base_hp <= 0
+                    isinstance(target, EnemyModel) and target.base_hp <= 0
                 ):
                     break
 
@@ -94,7 +94,7 @@ def boss_use_skill(enemy, skill_name, target, bot, chat_id):
 
             target.remove_skill_effect("rooted")
 
-            if isinstance(enemy, Enemy) and enemy.base_hp <= 0:
+            if isinstance(enemy, EnemyModel) and enemy.base_hp <= 0:
                 target.skills["root"] = True
                 target.save()
                 bot.send_message(

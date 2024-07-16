@@ -2,7 +2,7 @@ import math
 import random
 
 from bot.models import Character
-from bot.enemies import Enemy
+from bot.enemies import EnemyModel
 import time
 
 
@@ -10,7 +10,7 @@ def hero_use_skill(character, skill_name, target, bot, chat_id):
     if skill_name == "root" and character.skills.get("root") and random.random() <= 0.2:
         if isinstance(target, Character):
             target_name = target.nickname
-        elif isinstance(target, Enemy):
+        elif isinstance(target, EnemyModel):
             target_name = target.name
         else:
             target_name = "Unknown"
@@ -28,7 +28,7 @@ def hero_use_skill(character, skill_name, target, bot, chat_id):
             for turn in range(3):
                 if isinstance(target, Character) and target.hp <= 0:
                     break
-                elif isinstance(target, Enemy) and target.base_hp <= 0:
+                elif isinstance(target, EnemyModel) and target.base_hp <= 0:
                     break
 
                 if target.get_skill_effects().get("rooted"):

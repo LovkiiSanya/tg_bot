@@ -3,12 +3,27 @@ import telebot
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from bot.models import Character
-from bot.enemies import Enemy, Goblin, Wolf, Orc, Golem, Dragon, Skeleton, Cerberus, BossFairy, Shadow, Cobalt, \
-    BossBear,BossPhoenix,Hydra
+from bot.enemies import EnemyModel, Goblin, Wolf, Orc, Golem, Dragon, Skeleton, Cerberus, BossFairy, Shadow, Cobalt, \
+    BossBear, BossPhoenix, Hydra
 from bot.battle_logic.lvl_fight_logic import battle
 from django.db import transaction, IntegrityError
 import re
 from functools import wraps
+
+TANK_HP_BOOST = 100
+TANK_CP_BOOST = 40
+TANK_MP_BOOST = 10
+TANK_DMG_BOOST = 50
+
+DUELIST_HP_BOOST = 50
+DUELIST_CP_BOOST = 50
+DUELIST_MP_BOOST = 10
+DUELIST_DMG_BOOST = 75
+
+MAGE_HP_BOOST = 25
+MAGE_CP_BOOST = 25
+MAGE_MP_BOOST = 20
+MAGE_DMG_BOOST = 90
 
 ALLOWED_CHARACTERS_PATTERN = re.compile(r'^[0-9a-zA-Zа-яёєіїА-ЯЁЄІЇ]+$')
 TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -52,7 +67,7 @@ def create_character_if_not_exists(user_id):
 
 
 def clear_and_create_enemies():
-    Enemy.objects.all().delete()
+    EnemyModel.objects.all().delete()
 
     enemies = []
 
@@ -126,7 +141,8 @@ def clear_and_create_enemies():
     boss_phoenix = [
         BossFairy(name="Ancient Fairy", level=1, skills={"reincarnation": True})
     ]
-    enemies.extend(goblins + wolves + orcs + golems + dragons + skeletons + shadows + cobalts + boss_bear + boss_fairy + boss_phoenix+cerbers)
+    enemies.extend(
+        goblins + wolves + orcs + golems + dragons + skeletons + shadows + cobalts + boss_bear + boss_fairy + boss_phoenix + cerbers)
 
     for enemy in enemies:
         enemy.save()
@@ -215,20 +231,20 @@ class Command(BaseCommand):
                     }
 
                     if role == 'Tank':
-                        temp_stats['hp'] += 100
-                        temp_stats['cp'] += 40
-                        temp_stats['mp'] += 10
-                        temp_stats['dmg'] += 50
+                        temp_stats['hp'] += TANK_HP_BOOST
+                        temp_stats['cp'] += TANK_CP_BOOST
+                        temp_stats['mp'] += TANK_MP_BOOST
+                        temp_stats['dmg'] += TANK_DMG_BOOST
                     elif role == 'Duelist':
-                        temp_stats['cp'] += 50
-                        temp_stats['hp'] += 50
-                        temp_stats['mp'] += 10
-                        temp_stats['dmg'] += 75
+                        temp_stats['hp'] += DUELIST_HP_BOOST
+                        temp_stats['cp'] += DUELIST_CP_BOOST
+                        temp_stats['mp'] += DUELIST_MP_BOOST
+                        temp_stats['dmg'] += DUELIST_DMG_BOOST
                     elif role == 'Mage':
-                        temp_stats['mp'] += 20
-                        temp_stats['hp'] += 25
-                        temp_stats['cp'] += 25
-                        temp_stats['dmg'] += 90
+                        temp_stats['hp'] += MAGE_HP_BOOST
+                        temp_stats['cp'] += MAGE_CP_BOOST
+                        temp_stats['mp'] += MAGE_MP_BOOST
+                        temp_stats['dmg'] += MAGE_DMG_BOOST
 
                     user.temp_stats = temp_stats
                     user.role = role
